@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph xmlns="urn:app:graph" version="1.0" directed="true">
+  <nodes>
+    <node id="home-page" title="Home Page" x="12" y="2004" z="0">
+      <description>Landing page that displays all projects in a grid. Shows project thumbnails, status badges (processing/completed/failed), and key project metadata. Users can click to view project details or create new projects.</description>
+      <metadata>
+        <file>src/app/page.tsx</file>
+      </metadata>
+    </node>
+
+    <node id="upload-page" title="Upload Page" x="488" y="1651" z="0">
+      <description>Project creation form where users upload 5-10 images/videos, write a prompt describing their video idea, and select a thumbnail. Initiates AI processing pipeline on submission.</description>
+      <metadata>
+        <file>src/app/upload/page.tsx</file>
+      </metadata>
+    </node>
+
+    <node id="project-detail-page" title="Project Detail Page" x="964" y="1828" z="0">
+      <description>Detailed project view with tabs for Media, Script, and Sandbox State. Shows all generated content (script, voiceover, music, animated videos), allows editing/regeneration, displays render pipeline status, and provides sandbox debugging tools.</description>
+      <metadata>
+        <file>src/app/project/[id]/page.tsx</file>
+      </metadata>
+    </node>
+
+    <node id="convex-schema" title="Database Schema" x="3344" y="1500" z="0">
+      <description>Convex database schema defining projects table with fields for prompt, uploaded files, file metadata, generated content (script, audio, music, videos), processing status, sandbox state, and render progress.</description>
+      <metadata>
+        <file>convex/schema.ts</file>
+      </metadata>
+    </node>
+
+    <node id="project-mutations" title="Project Mutations" x="2868" y="1299" z="0">
+      <description>Convex mutations for project CRUD operations: createProject, addFilesToProject, updateProjectWithReelfulData, updateProjectStatus, updateProjectScript, updateRenderProgress, simulateCompleted, deleteProject.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="project-queries" title="Project Queries" x="2868" y="1652" z="0">
+      <description>Convex queries for fetching project data: getProjects (all projects with file URLs), getProject (single project with enriched data including storage URLs).</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="ai-processing-pipeline" title="AI Processing Pipeline" x="2392" y="340" z="0">
+      <description>Main orchestrator action that runs the full AI pipeline: 1) Generate script using GPT-5, 2) Generate voiceover with ElevenLabs + SRT, 3) Generate background music, 4) Animate images using FAL AI. Updates project status at each step.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="script-generation" title="Script Generation Service" x="3344" y="12" z="0">
+      <description>Uses OpenAI GPT-5 to generate a 15-second social media script from user prompt. Creates engaging content with hook, value proposition, and call-to-action tailored for Instagram/TikTok/YouTube Shorts.</description>
+      <metadata>
+        <file>convex/aiServices.ts</file>
+      </metadata>
+    </node>
+
+    <node id="voiceover-generation" title="Voiceover Generation Service" x="3344" y="668" z="0">
+      <description>Converts script to speech using ElevenLabs TTS API with character-level timestamps. Generates MP3 audio at 1.2x speed and creates word-level SRT subtitles. Uploads to Convex storage.</description>
+      <metadata>
+        <file>convex/aiServices.ts</file>
+      </metadata>
+    </node>
+
+    <node id="music-generation" title="Music Generation Service" x="3344" y="1172" z="0">
+      <description>Generates background music using ElevenLabs music API. Duration is calculated as voiceover duration / 1.25 to match video length. Creates upbeat social media style tracks.</description>
+      <metadata>
+        <file>convex/aiServices.ts</file>
+      </metadata>
+    </node>
+
+    <node id="image-animation" title="Image Animation Service" x="3344" y="340" z="0">
+      <description>Animates static images into 3-second videos using FAL AI Kling Video v2.5 turbo model. Uploads images to FAL storage, processes with image-to-video AI, and returns animated video URLs.</description>
+      <metadata>
+        <file>convex/aiServices.ts</file>
+      </metadata>
+    </node>
+
+    <node id="render-pipeline" title="Video Render Pipeline" x="964" y="2181" z="0">
+      <description>Main rendering orchestrator that creates E2B sandbox with Remotion template, uploads all media files (videos, audio, music, SRT), runs Claude Code agent to create video composition, executes Remotion render, and uploads final video to Convex storage.</description>
+      <metadata>
+        <file>convex/render.ts</file>
+      </metadata>
+    </node>
+
+    <node id="sandbox-management" title="Sandbox Management" x="3344" y="1828" z="0">
+      <description>E2B sandbox lifecycle management: create/connect to sandbox, check sandbox status, run commands, list/read files, download files/folders, and monitor pipeline status (sandbox alive, media uploaded, sequence created, video rendered).</description>
+      <metadata>
+        <file>convex/render.ts</file>
+      </metadata>
+    </node>
+
+    <node id="step1-start-sandbox" title="Step 1: Start Sandbox" x="1440" y="2005" z="0">
+      <description>Creates or connects to E2B sandbox with Remotion template. Checks if existing sandbox is alive, creates new one if needed. Sets up directory structure (public/media, public/reelful) and injects Claude Code OAuth token.</description>
+      <metadata>
+        <file>convex/render.ts</file>
+      </metadata>
+    </node>
+
+    <node id="step2-upload-files" title="Step 2: Upload Files" x="1916" y="2005" z="0">
+      <description>Transfers all media assets to sandbox: original images/videos (with filenames preserved), voiceover audio (audio.mp3), background music (music.mp3), animated videos (video0.mp4, video1.mp4, etc), and SRT subtitle files.</description>
+      <metadata>
+        <file>convex/render.ts</file>
+      </metadata>
+    </node>
+
+    <node id="step3-video-editor" title="Step 3: Run Video Editor (Claude)" x="2392" y="2005" z="0">
+      <description>Executes Claude Code agent via claude-agent.ts script in sandbox. Claude analyzes footage, extracts first frames from videos for context, decides editing sequence based on emotion/prompt, and creates Remotion composition with portrait orientation.</description>
+      <metadata>
+        <file>convex/render.ts</file>
+      </metadata>
+    </node>
+
+    <node id="step4-render-sequence" title="Step 4: Render Sequence" x="2868" y="2181" z="0">
+      <description>Runs &apos;bun remotion render&apos; in sandbox to generate final video. Validates output file exists and is valid size, downloads from sandbox via downloadUrl API, uploads to Convex storage, and updates project with renderedVideoUrl.</description>
+      <metadata>
+        <file>convex/render.ts</file>
+      </metadata>
+    </node>
+
+    <node id="regenerate-script" title="Regenerate Script Action" x="2392" y="12" z="0">
+      <description>Allows users to regenerate script with same prompt and images. Calls script generation service again and updates project with new script while preserving other generated content.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="regenerate-voiceover" title="Regenerate Voiceover Action" x="2392" y="1324" z="0">
+      <description>Regenerates voiceover audio from existing script using ElevenLabs TTS. Useful for getting different voice characteristics or fixing audio issues.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="regenerate-music" title="Regenerate Music Action" x="2392" y="1652" z="0">
+      <description>Generates new background music track using ElevenLabs music API. Creates fresh upbeat social media music while maintaining same duration.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="regenerate-animations" title="Regenerate Animations Action" x="2392" y="668" z="0">
+      <description>Regenerates all animated videos from original images using FAL AI. Processes up to 3 images and creates new 3-second animated clips.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+
+    <node id="animate-single-image" title="Animate Single Image Action" x="2392" y="996" z="0">
+      <description>Animates a single image on-demand (triggered by hover + click in UI). Adds animated video to project&apos;s videoUrls array incrementally without regenerating all animations.</description>
+      <metadata>
+        <file>convex/tasks.ts</file>
+      </metadata>
+    </node>
+  </nodes>
+
+  <edges>
+    <edge id="home-page-project-queries" source="home-page" target="project-queries" role="queries"/>
+    <edge id="home-page-upload-page" source="home-page" target="upload-page" role="navigates to"/>
+    <edge id="home-page-project-detail-page" source="home-page" target="project-detail-page" role="navigates to"/>
+    <edge id="home-page-render-pipeline" source="home-page" target="render-pipeline" role="triggers"/>
+    <edge id="upload-page-project-mutations" source="upload-page" target="project-mutations" role="creates project"/>
+    <edge id="upload-page-ai-processing-pipeline" source="upload-page" target="ai-processing-pipeline" role="triggers"/>
+    <edge id="upload-page-project-detail-page" source="upload-page" target="project-detail-page" role="navigates to"/>
+    <edge id="project-detail-page-project-queries" source="project-detail-page" target="project-queries" role="queries"/>
+    <edge id="project-detail-page-regenerate-script" source="project-detail-page" target="regenerate-script" role="triggers"/>
+    <edge id="project-detail-page-regenerate-voiceover" source="project-detail-page" target="regenerate-voiceover" role="triggers"/>
+    <edge id="project-detail-page-regenerate-music" source="project-detail-page" target="regenerate-music" role="triggers"/>
+    <edge id="project-detail-page-regenerate-animations" source="project-detail-page" target="regenerate-animations" role="triggers"/>
+    <edge id="project-detail-page-animate-single-image" source="project-detail-page" target="animate-single-image" role="triggers"/>
+    <edge id="project-detail-page-step1-start-sandbox" source="project-detail-page" target="step1-start-sandbox" role="triggers"/>
+    <edge id="project-detail-page-step2-upload-files" source="project-detail-page" target="step2-upload-files" role="triggers"/>
+    <edge id="project-detail-page-step3-video-editor" source="project-detail-page" target="step3-video-editor" role="triggers"/>
+    <edge id="project-detail-page-step4-render-sequence" source="project-detail-page" target="step4-render-sequence" role="triggers"/>
+    <edge id="project-detail-page-sandbox-management" source="project-detail-page" target="sandbox-management" role="uses"/>
+    <edge id="project-mutations-convex-schema" source="project-mutations" target="convex-schema" role="writes to"/>
+    <edge id="project-queries-convex-schema" source="project-queries" target="convex-schema" role="reads from"/>
+    <edge id="ai-processing-pipeline-script-generation" source="ai-processing-pipeline" target="script-generation" role="calls"/>
+    <edge id="ai-processing-pipeline-voiceover-generation" source="ai-processing-pipeline" target="voiceover-generation" role="calls"/>
+    <edge id="ai-processing-pipeline-music-generation" source="ai-processing-pipeline" target="music-generation" role="calls"/>
+    <edge id="ai-processing-pipeline-image-animation" source="ai-processing-pipeline" target="image-animation" role="calls"/>
+    <edge id="ai-processing-pipeline-project-mutations" source="ai-processing-pipeline" target="project-mutations" role="updates project"/>
+    <edge id="render-pipeline-step1-start-sandbox" source="render-pipeline" target="step1-start-sandbox" role="executes"/>
+    <edge id="render-pipeline-step2-upload-files" source="render-pipeline" target="step2-upload-files" role="executes"/>
+    <edge id="render-pipeline-step3-video-editor" source="render-pipeline" target="step3-video-editor" role="executes"/>
+    <edge id="render-pipeline-step4-render-sequence" source="render-pipeline" target="step4-render-sequence" role="executes"/>
+    <edge id="render-pipeline-project-mutations" source="render-pipeline" target="project-mutations" role="updates project"/>
+    <edge id="step1-start-sandbox-sandbox-management" source="step1-start-sandbox" target="sandbox-management" role="uses"/>
+    <edge id="step2-upload-files-sandbox-management" source="step2-upload-files" target="sandbox-management" role="uses"/>
+    <edge id="step3-video-editor-sandbox-management" source="step3-video-editor" target="sandbox-management" role="uses"/>
+    <edge id="step4-render-sequence-sandbox-management" source="step4-render-sequence" target="sandbox-management" role="uses"/>
+    <edge id="regenerate-script-script-generation" source="regenerate-script" target="script-generation" role="calls"/>
+    <edge id="regenerate-script-project-mutations" source="regenerate-script" target="project-mutations" role="updates project"/>
+    <edge id="regenerate-voiceover-voiceover-generation" source="regenerate-voiceover" target="voiceover-generation" role="calls"/>
+    <edge id="regenerate-voiceover-project-mutations" source="regenerate-voiceover" target="project-mutations" role="updates project"/>
+    <edge id="regenerate-music-music-generation" source="regenerate-music" target="music-generation" role="calls"/>
+    <edge id="regenerate-music-project-mutations" source="regenerate-music" target="project-mutations" role="updates project"/>
+    <edge id="regenerate-animations-image-animation" source="regenerate-animations" target="image-animation" role="calls"/>
+    <edge id="regenerate-animations-project-mutations" source="regenerate-animations" target="project-mutations" role="updates project"/>
+    <edge id="animate-single-image-image-animation" source="animate-single-image" target="image-animation" role="calls"/>
+    <edge id="animate-single-image-project-mutations" source="animate-single-image" target="project-mutations" role="updates project"/>
+    <edge id="step1-start-sandbox-step2-upload-files" source="step1-start-sandbox" target="step2-upload-files" role="leads to"/>
+    <edge id="step2-upload-files-step3-video-editor" source="step2-upload-files" target="step3-video-editor" role="leads to"/>
+    <edge id="step3-video-editor-step4-render-sequence" source="step3-video-editor" target="step4-render-sequence" role="leads to"/>
+  </edges>
+</graph>
